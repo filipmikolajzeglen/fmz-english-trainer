@@ -3,8 +3,11 @@ package com.filipmikolajzeglen.fmzenglishtrainer.translationirregularverb;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -12,22 +15,80 @@ import java.util.stream.Collectors;
 class TranslationIrregularVerbService {
 
     private TranslationIrregularVerbRepository repository;
+    private TranslationIrregularVerbGradeRepository gradeRepository;
 
     List<TranslationIrregularVerbDTO> prepareIrregularVerbsForExam(int maxVerbsPerExam) {
-        List<TranslationIrregularVerbDTO> verbs = repository.findAll().stream()
-                .filter(verb -> !verb.isTaught())
-                .limit(maxVerbsPerExam)
-                .map(TranslationIrregularVerbMapper::mapToDTO)
-                .collect(Collectors.toList());
+        List<TranslationIrregularVerb> verbs = getVerbsForExam(maxVerbsPerExam);
+        List<TranslationIrregularVerbDTO> list = convertToDTOList(verbs);
+        Collections.shuffle(list);
+        return list;
+    }
 
-        Collections.shuffle(verbs);
+    private List<TranslationIrregularVerb> getVerbsForExam(int maxVerbsPerExam) {
+        List<TranslationIrregularVerb> verbs = new ArrayList<>();
+        int repetitionsCount = 0;
+
+        while (verbs.size() < maxVerbsPerExam) {
+            List<TranslationIrregularVerb> fetchedVerbs = fetchVerbs(repetitionsCount, maxVerbsPerExam - verbs.size());
+            verbs.addAll(fetchedVerbs);
+            repetitionsCount++;
+        }
         return verbs;
     }
 
-    List<TranslationIrregularVerbDTO> getAllIrregularVerbs() {
-        return repository.findAll().stream()
+    private List<TranslationIrregularVerb> fetchVerbs(int repetitionsCount, int limit) {
+        return repository.searchAllByTaughtFalse().stream()
+                .filter(verb -> verb.getNumberOfRepetitions() == repetitionsCount)
+                .limit(limit)
+                .toList();
+    }
+
+    private List<TranslationIrregularVerbDTO> convertToDTOList(List<TranslationIrregularVerb> verbs) {
+        return verbs.stream()
+                .map(TranslationIrregularVerbMapper::mapToDTO)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    List<TranslationIrregularVerbDTO> getAllUnlearnedIrregularVerbs() {
+        return repository.searchAllByTaughtFalse().stream()
                 .map(TranslationIrregularVerbMapper::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    List<TranslationIrregularVerbDTO> getAllLearnedIrregularVerbs() {
+        return repository.searchAllByTaughtTrue().stream()
+                .map(TranslationIrregularVerbMapper::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    String getLearnedToUnlearnedIrregularVerbsStatistics() {
+        int learned = repository.searchAllByTaughtTrue().size();
+        int unlearned = repository.searchAllByTaughtFalse().size();
+        return String.format("%s nauczonych / %s do nauki", learned, unlearned);
+    }
+
+    void updateVerbStatus(TranslationIrregularVerbDTO verbDTO) {
+        TranslationIrregularVerb verb = repository.findByTranslation(verbDTO.getTranslation());
+        verb.setNumberOfMistakes(verbDTO.getNumberOfMistakes());
+        verb.setNumberOfCorrectAnswers(verbDTO.getNumberOfCorrectAnswers());
+        verb.setNumberOfRepetitions(verbDTO.getNumberOfRepetitions());
+
+        if (verb.getNumberOfCorrectAnswers() >= 3 &&
+                verb.getNumberOfMistakes() < (verb.getNumberOfCorrectAnswers() + 3)) {
+            verb.setTaught(true);
+        }
+
+        repository.save(verb);
+    }
+
+    void saveSummaryOfExam(String grade, int correctAnswers, int allAnswers) {
+        gradeRepository.save(TranslationIrregularVerbGrade.builder()
+                .withGrade(grade)
+                .withCorrectAnswers(correctAnswers)
+                .withWrongAnswers(allAnswers)
+                .withDate(Instant.now())
+                .build()
+        );
     }
 
     String calculateGrade(int correctAnswers, int allAnswers) {

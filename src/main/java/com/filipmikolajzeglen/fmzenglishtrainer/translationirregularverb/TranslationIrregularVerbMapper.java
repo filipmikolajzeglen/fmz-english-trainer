@@ -10,4 +10,5 @@ class TranslationIrregularVerbMapper {
                 .withTranslation(translationIrregularVerb.getTranslation())
                 .build();
     }
+
 }
