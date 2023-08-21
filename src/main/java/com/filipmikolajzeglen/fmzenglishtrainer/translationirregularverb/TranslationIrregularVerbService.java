@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ class TranslationIrregularVerbService {
     String getLearnedToUnlearnedIrregularVerbsStatistics() {
         int learned = repository.searchAllByTaughtTrue().size();
         int unlearned = repository.searchAllByTaughtFalse().size();
-        return String.format("%s nauczonych / %s do nauki", learned, unlearned);
+        return String.format("%s learned / %s to learn", learned, unlearned);
     }
 
     void updateVerbStatus(TranslationIrregularVerbDTO verbDTO) {
@@ -89,6 +90,13 @@ class TranslationIrregularVerbService {
                 .withDate(Instant.now())
                 .build()
         );
+    }
+
+    List<TranslationIrregularVerbGradeDTO> getAllLatestGrades() {
+        return gradeRepository.findAll().stream()
+                .sorted(Comparator.comparing(TranslationIrregularVerbGrade::getDate).reversed())
+                .map(TranslationIrregularVerbGradeMapper::mapToDTO)
+                .toList();
     }
 
     String calculateGrade(int correctAnswers, int allAnswers) {

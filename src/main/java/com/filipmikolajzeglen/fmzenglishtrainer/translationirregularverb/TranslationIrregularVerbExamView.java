@@ -25,8 +25,8 @@ public class TranslationIrregularVerbExamView extends VerticalLayout {
     private final TranslationIrregularVerbService service;
     private final List<TranslationIrregularVerbDTO> verbs;
     private final Map<TranslationIrregularVerbDTO, TextField> fields = new HashMap<>();
-    private final Button submitButton = new Button("Zatwierdź egzamin");
-    private final Button goToStatisticsButton = new Button("Twoje statystyki", e -> UI.getCurrent().navigate("translation-irregular-verb"));
+    private final Button submitButton = new Button("Submit exam");
+    private final Button goToStatisticsButton = new Button("Summary board", e -> UI.getCurrent().navigate("translation-irregular-verb-summary"));
 
     public TranslationIrregularVerbExamView(TranslationIrregularVerbService service) {
         this.service = service;

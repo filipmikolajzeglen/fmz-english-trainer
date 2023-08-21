@@ -5,6 +5,12 @@
     padding: 10px
 }
 
+.summary-view {
+    margin: auto;
+    height: 100%;
+    padding: 10px
+}
+
 .submit-button {
     font-size: 14px;
     line-height: 16px;
