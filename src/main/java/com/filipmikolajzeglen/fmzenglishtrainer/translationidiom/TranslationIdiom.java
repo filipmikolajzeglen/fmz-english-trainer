@@ -26,6 +26,9 @@ class TranslationIdiom {
     @Column(name = "number_of_mistakes", nullable = false)
     private int numberOfMistakes = 0;
 
+    @Column(name = "number_of_correct_answers", nullable = false, columnDefinition = "int default 0")
+    private int numberOfCorrectAnswers;
+
     @Column(name = "number_of_repetitions", nullable = false)
     private int numberOfRepetitions = 0;
 }

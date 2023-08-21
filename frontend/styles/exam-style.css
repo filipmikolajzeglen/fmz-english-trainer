@@ -13,7 +13,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: auto;
+    min-width: 200px;
     border: 2px solid #156d9a;
     color: #156d9a;
     border-radius: 1.5rem;
@@ -59,7 +59,7 @@
 }
 
 span {
-    box-sizing: border-box;  /* Jeżeli jest już obecne, nie trzeba dodawać */
+    box-sizing: border-box;
     display: inline-block;
 }
 

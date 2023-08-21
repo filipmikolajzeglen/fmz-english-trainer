@@ -32,6 +32,9 @@ class TranslationIrregularVerb {
     @Column(name = "number_of_mistakes", nullable = false, columnDefinition = "int default 0")
     private int numberOfMistakes;
 
+    @Column(name = "number_of_correct_answers", nullable = false, columnDefinition = "int default 0")
+    private int numberOfCorrectAnswers;
+
     @Column(name = "number_of_repetitions", nullable = false, columnDefinition = "int default 0")
     private int numberOfRepetitions;
 }

@@ -1,9 +1,11 @@
 package com.filipmikolajzeglen.fmzenglishtrainer.translationirregularverb;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,12 +26,14 @@ public class TranslationIrregularVerbExamView extends VerticalLayout {
     private final List<TranslationIrregularVerbDTO> verbs;
     private final Map<TranslationIrregularVerbDTO, TextField> fields = new HashMap<>();
     private final Button submitButton = new Button("Zatwierdź egzamin");
+    private final Button goToStatisticsButton = new Button("Twoje statystyki", e -> UI.getCurrent().navigate("translation-irregular-verb"));
 
     public TranslationIrregularVerbExamView(TranslationIrregularVerbService service) {
         this.service = service;
         this.verbs = service.prepareIrregularVerbsForExam(MAX_VERBS_PER_EXAM);
-        this.addClassName("exam-view");
         this.submitButton.addClassName("submit-button");
+        this.goToStatisticsButton.addClassName("submit-button");
+        this.addClassName("exam-view");
         AtomicInteger verbIndex = new AtomicInteger(1);
 
         for (TranslationIrregularVerbDTO verb : verbs) {
@@ -56,7 +60,12 @@ public class TranslationIrregularVerbExamView extends VerticalLayout {
         }
 
         submitButton.addClickListener(click -> checkAnswers());
-        add(submitButton);
+        submitButton.getStyle().set("margin-right", "-200px");
+        HorizontalLayout buttonsLayout = new HorizontalLayout(submitButton, goToStatisticsButton);
+        buttonsLayout.setWidthFull();
+        buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttonsLayout.setSpacing(false);
+        add(buttonsLayout);
     }
 
     private void checkAnswers() {
@@ -79,10 +88,14 @@ public class TranslationIrregularVerbExamView extends VerticalLayout {
             if (isCorrect) {
                 correctAnswers++;
                 textField.setInvalid(false);
+                verb.incrementNumberOfCorrectAnswers();
             } else {
                 textField.setValue(verb.getTranslation());
                 textField.setInvalid(true);
+                verb.incrementNumberOfMistakes();
             }
+            verb.incrementNumberOfRepetitions();
+            service.updateVerbStatus(verb);
         }
 
         String grade = service.calculateGrade(correctAnswers, allAnswers);
@@ -91,6 +104,7 @@ public class TranslationIrregularVerbExamView extends VerticalLayout {
         resultsLayout.add(new Span("Correct answers:  " + correctAnswers));
         resultsLayout.add(new Span("Total questions:  " + allAnswers));
         resultsLayout.add(new Span("Grade:  " + grade));
+        service.saveSummaryOfExam(grade, correctAnswers, allAnswers - correctAnswers);
 
         resultDialog.add(resultsLayout);
         resultDialog.open();
