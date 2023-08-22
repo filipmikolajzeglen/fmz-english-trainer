@@ -80,6 +80,7 @@ public class TranslationIrregularVerbExamView extends VerticalLayout {
             String[] correctTranslations = verb.getTranslation().split("[/,]");
             boolean isCorrect = Arrays.stream(correctTranslations)
                     .map(correctTranslation -> correctTranslation.replace("SIĘ", ""))
+                    .map(correctTranslation -> correctTranslation.replaceAll("\\(.*?\\)", ""))
                     .map(String::trim)
                     .map(String::toUpperCase)
                     .toList()

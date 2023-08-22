@@ -8,6 +8,9 @@ class TranslationIrregularVerbMapper {
                 .withIIForm(translationIrregularVerb.getIIForm())
                 .withIIIForm(translationIrregularVerb.getIIIForm())
                 .withTranslation(translationIrregularVerb.getTranslation())
+                .withNumberOfMistakes(translationIrregularVerb.getNumberOfMistakes())
+                .withNumberOfCorrectAnswers(translationIrregularVerb.getNumberOfCorrectAnswers())
+                .withNumberOfRepetitions(translationIrregularVerb.getNumberOfRepetitions())
                 .build();
     }
 
