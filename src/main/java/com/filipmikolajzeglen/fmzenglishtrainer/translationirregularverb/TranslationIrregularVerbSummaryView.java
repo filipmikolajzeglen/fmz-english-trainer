@@ -1,6 +1,6 @@
 package com.filipmikolajzeglen.fmzenglishtrainer.translationirregularverb;
 
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
@@ -16,64 +16,69 @@ import java.util.List;
 @CssImport("../../../frontend/styles/exam-style.css")
 public class TranslationIrregularVerbSummaryView extends VerticalLayout {
 
-    private final TranslationIrregularVerbService service;
+    private final TranslationIrregularVerbSummaryService service;
+    private final Button goToExaminButton = new Button("Start exam",
+            e -> UI.getCurrent().navigate("translation-irregular-verb-exam"));
 
-    private final Button goToExaminButton = new Button("Start exam", e -> UI.getCurrent().navigate("translation-irregular-verb-exam"));
-
-    TranslationIrregularVerbSummaryView(TranslationIrregularVerbService service) {
+    TranslationIrregularVerbSummaryView(TranslationIrregularVerbSummaryService service) {
         this.service = service;
-        this.goToExaminButton.addClassName("submit-button");
+        this.goToExaminButton.addClassName("start-exam-button");
         this.addClassName("summary-view");
 
-        String statistics = service.getLearnedToUnlearnedIrregularVerbsStatistics();
-        Span learnedTitleSpan = new Span("Learned irregular verbs");
-        Span statisticsSpan = new Span(statistics);
-        HorizontalLayout learnedLayout = new HorizontalLayout(learnedTitleSpan, statisticsSpan);
-        learnedLayout.setWidthFull();
-        learnedLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        HorizontalLayout learnedLayout = createLayout("Learned irregular verbs", service.getLearnedToUnlearnedIrregularVerbsStatistics());
+        Grid<TranslationIrregularVerbDTO> learnedGrid = createGrid(service.getAllLearnedIrregularVerbs());
 
-        Grid<TranslationIrregularVerbDTO> learnedGrid = new Grid<>(TranslationIrregularVerbDTO.class);
-        learnedGrid.setColumns("IFrom", "IIForm", "IIIForm", "translation");
-        List<TranslationIrregularVerbDTO> learnedVerbs = service.getAllLearnedIrregularVerbs();
-        learnedGrid.setItems(learnedVerbs);
-        learnedGrid.setHeight("345px");
+        HorizontalLayout notLearnedLayout = createLayout("Irregular verbs to learn", goToExaminButton);
+        Grid<TranslationIrregularVerbDTO> notLearnedGrid = createGrid(service.getAllUnlearnedIrregularVerbs());
 
-        Span notLearnedTitleSpan = new Span("Irregular verbs to learn");
-        goToExaminButton.getStyle().set("margin", "0");
-        HorizontalLayout notLearnedLayout = new HorizontalLayout(notLearnedTitleSpan, goToExaminButton);
-        notLearnedLayout.setWidthFull();
-        notLearnedLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        notLearnedLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-
-        Grid<TranslationIrregularVerbDTO> notLearnedGrid = new Grid<>(TranslationIrregularVerbDTO.class);
-        notLearnedGrid.setColumns("IFrom", "IIForm", "IIIForm", "translation");
-        List<TranslationIrregularVerbDTO> notLearnedVerbs = service.getAllUnlearnedIrregularVerbs();
-        notLearnedGrid.setItems(notLearnedVerbs);
-        notLearnedGrid.setHeight("345px");
-
-        Grid<TranslationIrregularVerbGradeDTO> gradeGrid = new Grid<>(TranslationIrregularVerbGradeDTO.class);
-        gradeGrid.setColumns("grade", "date", "wrongAnswers", "correctAnswers");
-
-        List<TranslationIrregularVerbGradeDTO> grades = service.getAllLatestGrades();
-        gradeGrid.setItems(grades);
-
-        VerticalLayout verbsLayout = new VerticalLayout(learnedLayout, learnedGrid, notLearnedLayout, notLearnedGrid);
-        verbsLayout.setWidth("65%");
+        Grid<TranslationIrregularVerbGradeDTO> gradeGrid = createGradeGrid(service.getAllLatestGrades());
 
         String averageGrade = service.getAverageGrade();
-        Span gradeTitleSpan = new Span("Grade Statistics");
-        Span averageGradesSpan = new Span(averageGrade);
-        HorizontalLayout averageGradeLayout = new HorizontalLayout(gradeTitleSpan, averageGradesSpan);
-        averageGradeLayout.setWidthFull();
-        averageGradeLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        HorizontalLayout averageGradeLayout = createLayout("Grade Statistics", averageGrade);
 
-        VerticalLayout gradeLayout = new VerticalLayout(averageGradeLayout, gradeGrid);
-        gradeLayout.setWidth("34%");
+        VerticalLayout verbsLayout = createLayout("65%", learnedLayout, learnedGrid, notLearnedLayout, notLearnedGrid);
+        VerticalLayout gradeLayout = createLayout("34%", averageGradeLayout, gradeGrid);
 
-        HorizontalLayout mainLayout = new HorizontalLayout(verbsLayout, gradeLayout);
-        mainLayout.setWidth("100%");
+        HorizontalLayout mainLayout = createLayout(verbsLayout, gradeLayout);
 
         add(mainLayout);
     }
 
+    private HorizontalLayout createLayout(String title, Component rightComponent) {
+        return createLayout(new Span(title), rightComponent);
+    }
+
+    private HorizontalLayout createLayout(String title, String content) {
+        return createLayout(new Span(title), new Span(content));
+    }
+
+    private HorizontalLayout createLayout(Component... components) {
+        HorizontalLayout layout = new HorizontalLayout(components);
+        layout.setWidthFull();
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+        return layout;
+    }
+
+    private VerticalLayout createLayout(String width, Component... components) {
+        VerticalLayout layout = new VerticalLayout(components);
+        layout.setWidth(width);
+        layout.setHeightFull();
+        return layout;
+    }
+
+    private Grid<TranslationIrregularVerbDTO> createGrid(List<TranslationIrregularVerbDTO> items) {
+        Grid<TranslationIrregularVerbDTO> grid = new Grid<>(TranslationIrregularVerbDTO.class);
+        grid.setColumns("IFrom", "IIForm", "IIIForm", "translation");
+        grid.setItems(items);
+        grid.setHeight("345px");
+        return grid;
+    }
+
+    private Grid<TranslationIrregularVerbGradeDTO> createGradeGrid(List<TranslationIrregularVerbGradeDTO> grades) {
+        Grid<TranslationIrregularVerbGradeDTO> grid = new Grid<>(TranslationIrregularVerbGradeDTO.class);
+        grid.setColumns("grade", "date", "wrongAnswers", "correctAnswers");
+        grid.setItems(grades);
+        return grid;
+    }
 }
