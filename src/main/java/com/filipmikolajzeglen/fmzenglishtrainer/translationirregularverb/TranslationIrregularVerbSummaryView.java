@@ -26,9 +26,9 @@ public class TranslationIrregularVerbSummaryView extends VerticalLayout {
         this.addClassName("summary-view");
 
         String statistics = service.getLearnedToUnlearnedIrregularVerbsStatistics();
-        Span learnedSpan = new Span("Learned irregular verbs");
+        Span learnedTitleSpan = new Span("Learned irregular verbs");
         Span statisticsSpan = new Span(statistics);
-        HorizontalLayout learnedLayout = new HorizontalLayout(learnedSpan, statisticsSpan);
+        HorizontalLayout learnedLayout = new HorizontalLayout(learnedTitleSpan, statisticsSpan);
         learnedLayout.setWidthFull();
         learnedLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
@@ -38,9 +38,9 @@ public class TranslationIrregularVerbSummaryView extends VerticalLayout {
         learnedGrid.setItems(learnedVerbs);
         learnedGrid.setHeight("345px");
 
-        Span notLearnedSpan = new Span("Irregular verbs to learn");
+        Span notLearnedTitleSpan = new Span("Irregular verbs to learn");
         goToExaminButton.getStyle().set("margin", "0");
-        HorizontalLayout notLearnedLayout = new HorizontalLayout(notLearnedSpan, goToExaminButton);
+        HorizontalLayout notLearnedLayout = new HorizontalLayout(notLearnedTitleSpan, goToExaminButton);
         notLearnedLayout.setWidthFull();
         notLearnedLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         notLearnedLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -60,8 +60,14 @@ public class TranslationIrregularVerbSummaryView extends VerticalLayout {
         VerticalLayout verbsLayout = new VerticalLayout(learnedLayout, learnedGrid, notLearnedLayout, notLearnedGrid);
         verbsLayout.setWidth("65%");
 
-        Span gradeTitle = new Span("Grade Statistics");
-        VerticalLayout gradeLayout = new VerticalLayout(gradeTitle, gradeGrid);
+        String averageGrade = service.getAverageGrade();
+        Span gradeTitleSpan = new Span("Grade Statistics");
+        Span averageGradesSpan = new Span(averageGrade);
+        HorizontalLayout averageGradeLayout = new HorizontalLayout(gradeTitleSpan, averageGradesSpan);
+        averageGradeLayout.setWidthFull();
+        averageGradeLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+
+        VerticalLayout gradeLayout = new VerticalLayout(averageGradeLayout, gradeGrid);
         gradeLayout.setWidth("34%");
 
         HorizontalLayout mainLayout = new HorizontalLayout(verbsLayout, gradeLayout);
