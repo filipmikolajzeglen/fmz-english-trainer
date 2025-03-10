@@ -14,7 +14,7 @@ CREATE TABLE translation.irregular_verb
 );
 
 COMMENT ON TABLE translation.irregular_verb IS 'Czasowniki nieregularne ze wszystkimi formami i tłumaczeniem';
-COMMENT ON COLUMN translation.irregular_verb.id IS 'Identyfikator czasownika nieregularnego';
+COMMENT ON COLUMN translation.irregular_verb.id IS 'Identyfikator';
 COMMENT ON COLUMN translation.irregular_verb.i_form IS 'Pierwsza forma czasownika nieregularnego';
 COMMENT ON COLUMN translation.irregular_verb.ii_form IS 'Druga forma czasownika nieregularnego';
 COMMENT ON COLUMN translation.irregular_verb.iii_form IS 'Trzecia forma czasownika nieregularnego';
@@ -34,7 +34,7 @@ CREATE TABLE translation.irregular_verb_grade
 );
 
 COMMENT ON TABLE translation.irregular_verb_grade IS 'Oceny testów i egzaminów dla czasowników nieregularne';
-COMMENT ON COLUMN translation.irregular_verb_grade.id IS 'Identyfikator oceny';
+COMMENT ON COLUMN translation.irregular_verb_grade.id IS 'Identyfikator';
 COMMENT ON COLUMN translation.irregular_verb_grade.grade IS 'Ocena';
 COMMENT ON COLUMN translation.irregular_verb_grade.date IS 'Data otrzymania oceny';
 COMMENT ON COLUMN translation.irregular_verb_grade.wrong_answers IS 'Ilość poprawnych odpowiedzi';
